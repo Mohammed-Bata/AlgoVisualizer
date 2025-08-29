@@ -102,7 +102,7 @@ async function insertionSort(nums) {
     if (nums[j] <= key) {
       cols[j].style.transform = "translateY(-30px)";
       cols[j].style.backgroundColor = "red";
-      //await sleep(delay);
+      await sleep(delay);
       cols[j].style.backgroundColor = "orange";
       cols[j].style.transform = "translateY(0px)";
       await sleep(delay);
