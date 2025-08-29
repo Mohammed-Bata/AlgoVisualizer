@@ -108,6 +108,7 @@ async function insertionSort(nums) {
         await sleep(100);
       }
       // Shift value to the right
+      //second branch
       let temp = nums[j + 1];
       nums[j + 1] = nums[j];
       cols[j + 1].style.height = `${nums[j] * 20}px`;
