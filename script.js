@@ -99,6 +99,14 @@ async function insertionSort(nums) {
     let j = i - 1;
     //cols[i].style.transform = "translateY(-30px)";
     cols[i].style.backgroundColor = "orange";
+    if (nums[j] <= key) {
+      cols[j].style.transform = "translateY(-30px)";
+      cols[j].style.backgroundColor = "red";
+      //await sleep(delay);
+      cols[j].style.backgroundColor = "orange";
+      cols[j].style.transform = "translateY(0px)";
+      await sleep(delay);
+    }
     await sleep(delay);
     while (j >= 0 && nums[j] > key) {
       cols[j].style.transform = "translateY(-30px)";
@@ -108,7 +116,6 @@ async function insertionSort(nums) {
         await sleep(100);
       }
       // Shift value to the right
-      //second branch
       let temp = nums[j + 1];
       nums[j + 1] = nums[j];
       cols[j + 1].style.height = `${nums[j] * 20}px`;
@@ -117,11 +124,11 @@ async function insertionSort(nums) {
       // Reset bar after comparison
       nums[j] = temp;
       cols[j].style.transform = "translateY(0)";
-      cols[j].style.backgroundColor = "blue";
+      cols[j].style.backgroundColor = "orange";
       cols[j].textContent = temp;
       cols[j].style.height = `${temp * 20}px`;
       //cols[i].style.transform = "translateY(0)";
-      cols[i].style.backgroundColor = "blue";
+      //cols[i].style.backgroundColor = "blue";
 
       await sleep(delay);
       while (isPaused) {
@@ -129,14 +136,15 @@ async function insertionSort(nums) {
       }
       j--;
     }
+
     nums[j + 1] = key;
     cols[j + 1].style.height = `${key * 20}px`;
     cols[j + 1].textContent = key;
-    //await sleep(delay);
+    cols[j + 1].style.backgroundColor = "orange";
 
     //Reset current bar
     //cols[i].style.transform = "translateY(0)";
-    cols[i].style.backgroundColor = "blue";
+    cols[i].style.backgroundColor = "orange";
 
     await sleep(delay);
   }
