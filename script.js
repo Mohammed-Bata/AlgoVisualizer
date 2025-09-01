@@ -35,7 +35,7 @@ console.log(nums);
 
 for (let i = 0; i < nums.length; i++) {
   const col = document.querySelector(`.col${i + 1}`);
-  col.style.height = `${nums[i] * 20}px`;
+  col.style.height = `${(nums[i] / 50) * 220}px`;
 }
 
 cols.forEach((col, index) => {
@@ -47,7 +47,7 @@ function generateRandomArray() {
   const arr = [];
   let size = sizeInput.value ? parseInt(sizeInput.value) : 5;
   for (let i = 0; i < size; i++) {
-    arr.push(Math.floor(Math.random() * 21) + 1);
+    arr.push(Math.floor(Math.random() * 49) + 1);
   }
   const base = document.querySelector(".cols");
   base.innerHTML = "";
@@ -55,7 +55,7 @@ function generateRandomArray() {
     const bar = document.createElement("span");
     bar.classList.add("col");
     bar.classList.add(`col${index + 1}`);
-    bar.style.height = `${height * 20}px`;
+    bar.style.height = `${(height / 50) * 220}px`;
     base.appendChild(bar);
   });
   // for (let i = 0; i < arr.length; i++) {
@@ -77,10 +77,12 @@ startBtn.addEventListener("click", async () => {
     isPaused = false;
     icon.classList.remove("fa-play");
     icon.classList.add("fa-pause");
-    //await n2Sort(nums);
+    await n2Sort(nums);
     //await bubbleSort(nums);
     //await selectionSort(nums);
-    await insertionSort(nums);
+    //await insertionSort(nums);
+    let cos = Array.from(cols);
+    //await mergeSort(nums, cos);
   } else if (!isPaused) {
     isPaused = true;
     icon.classList.remove("fa-pause");
@@ -91,6 +93,59 @@ startBtn.addEventListener("click", async () => {
     icon.classList.add("fa-pause");
   }
 });
+
+async function mergeSort(nums, cos, depth = 1) {
+  let parent = document.querySelector(".cols");
+
+  if (cols.length <= 1) return cols;
+
+  const mid = Math.floor(cols.length / 2);
+  let left = cos.slice(0, mid + 1);
+  let right = cos.slice(mid + 1);
+
+  // 🔥 Visualize splitting: move bars down by depth
+  left.forEach((col) => (col.style.transform = `translateY(${depth * 30}px)`));
+  await sleep(500);
+  right.forEach((col) => (col.style.transform = `translateY(${depth * 30}px)`));
+
+  await sleep(500);
+
+  const sortedLeft = await mergeSort(parent, left, depth + 1);
+  const sortedRight = await mergeSort(parent, right, depth + 1);
+
+  return await merge(parent, sortedLeft, sortedRight, depth);
+}
+
+async function merge(parent, left, right, depth) {
+  let result = [];
+  let i = 0,
+    j = 0;
+
+  while (i < left.length && j < right.length) {
+    let leftVal = parseInt(left[i].style.height);
+    let rightVal = parseInt(right[j].style.height);
+
+    if (leftVal < rightVal) {
+      result.push(left[i]);
+      i++;
+    } else {
+      result.push(right[j]);
+      j++;
+    }
+  }
+
+  // add leftovers
+  while (i < left.length) {
+    result.push(left[i]);
+    i++;
+  }
+  while (j < right.length) {
+    result.push(right[j]);
+    j++;
+  }
+
+  return result;
+}
 
 async function insertionSort(nums) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
@@ -118,7 +173,7 @@ async function insertionSort(nums) {
       // Shift value to the right
       let temp = nums[j + 1];
       nums[j + 1] = nums[j];
-      cols[j + 1].style.height = `${nums[j] * 20}px`;
+      cols[j + 1].style.height = `${(nums[j] / 50) * 220}px`;
       cols[j + 1].textContent = nums[j];
 
       // Reset bar after comparison
@@ -126,7 +181,7 @@ async function insertionSort(nums) {
       cols[j].style.transform = "translateY(0)";
       cols[j].style.backgroundColor = "orange";
       cols[j].textContent = temp;
-      cols[j].style.height = `${temp * 20}px`;
+      cols[j].style.height = `${(temp / 50) * 220}px`;
       //cols[i].style.transform = "translateY(0)";
       //cols[i].style.backgroundColor = "blue";
 
@@ -138,7 +193,7 @@ async function insertionSort(nums) {
     }
 
     nums[j + 1] = key;
-    cols[j + 1].style.height = `${key * 20}px`;
+    cols[j + 1].style.height = `${(key / 50) * 220}px`;
     cols[j + 1].textContent = key;
     cols[j + 1].style.backgroundColor = "orange";
 
@@ -185,8 +240,8 @@ async function selectionSort(nums) {
     let temp = nums[i];
     nums[i] = nums[minidx];
     nums[minidx] = temp;
-    cols[i].style.height = `${nums[i] * 20}px`;
-    cols[minidx].style.height = `${nums[minidx] * 20}px`;
+    cols[i].style.height = `${(nums[i] / 50) * 220}px`;
+    cols[minidx].style.height = `${(nums[minidx] / 50) * 220}px`;
     cols[i].textContent = nums[i];
     cols[minidx].textContent = nums[minidx];
     await sleep(delay);
@@ -228,8 +283,8 @@ async function bubbleSort(nums) {
         let temp = nums[j];
         nums[j] = nums[j + 1];
         nums[j + 1] = temp;
-        cols[j].style.height = `${nums[j] * 20}px`;
-        cols[j + 1].style.height = `${nums[j + 1] * 20}px`;
+        cols[j].style.height = `${(nums[j] / 50) * 220}px`;
+        cols[j + 1].style.height = `${(nums[j + 1] / 50) * 220}px`;
         cols[j].textContent = nums[j];
         cols[j + 1].textContent = nums[j + 1];
         swapped = true;
@@ -276,8 +331,8 @@ async function n2Sort(nums) {
         let temp = nums[i];
         nums[i] = nums[j];
         nums[j] = temp;
-        cols[i].style.height = `${nums[i] * 20}px`;
-        cols[j].style.height = `${nums[j] * 20}px`;
+        cols[i].style.height = `${(nums[i] / 50) * 220}px`;
+        cols[j].style.height = `${(nums[j] / 50) * 220}px`;
         cols[i].textContent = nums[i];
         cols[j].textContent = nums[j];
         await sleep(delay);
