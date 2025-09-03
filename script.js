@@ -77,12 +77,18 @@ startBtn.addEventListener("click", async () => {
     isPaused = false;
     icon.classList.remove("fa-play");
     icon.classList.add("fa-pause");
-    await n2Sort(nums);
+    //await n2Sort(nums);
     //await bubbleSort(nums);
     //await selectionSort(nums);
     //await insertionSort(nums);
     let cos = Array.from(cols);
-    //await mergeSort(nums, cos);
+    const values = await mergeSort(nums, cos, 0, cos.length - 1);
+    values.forEach((value) => {
+      value.style.backgroundColor = "blue";
+    });
+    isSorting = false;
+    icon.classList.remove("fa-pause");
+    icon.classList.add("fa-play");
   } else if (!isPaused) {
     isPaused = true;
     icon.classList.remove("fa-pause");
@@ -94,55 +100,110 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
-async function mergeSort(nums, cos, depth = 1) {
+async function mergeSort(nums, cos, start, end, depth = 0) {
   let parent = document.querySelector(".cols");
+  let delay = msInput.value ? parseInt(msInput.value) : 500;
 
-  if (cols.length <= 1) return cols;
+  if (start >= end) {
+    // cos[start].style.transform = `translateY(${depth * 30}px)`;
+    // await sleep(delay);
+    return [cos[start]];
+  }
 
-  const mid = Math.floor(cols.length / 2);
-  let left = cos.slice(0, mid + 1);
-  let right = cos.slice(mid + 1);
+  const mid = Math.floor((start + end) / 2);
 
-  // 🔥 Visualize splitting: move bars down by depth
-  left.forEach((col) => (col.style.transform = `translateY(${depth * 30}px)`));
-  await sleep(500);
-  right.forEach((col) => (col.style.transform = `translateY(${depth * 30}px)`));
+  for (let i = start; i <= end; i++) {
+    cos[i].style.transform = `translateY(${depth * 30}px)`;
+  }
 
-  await sleep(500);
+  await sleep(delay);
 
-  const sortedLeft = await mergeSort(parent, left, depth + 1);
-  const sortedRight = await mergeSort(parent, right, depth + 1);
+  const sortedLeft = await mergeSort(parent, cos, start, mid, depth + 1);
+  const sortedRight = await mergeSort(parent, cos, mid + 1, end, depth + 1);
 
-  return await merge(parent, sortedLeft, sortedRight, depth);
+  while (isPaused) {
+    await sleep(100);
+  }
+
+  return await merge(parent, sortedLeft, sortedRight, depth + 1);
 }
 
 async function merge(parent, left, right, depth) {
+  let delay = msInput.value ? parseInt(msInput.value) : 500;
   let result = [];
   let i = 0,
     j = 0;
 
+  // let style1 = window.getComputedStyle(left[i]);
+  // let matrix = new DOMMatrixReadOnly(style1.transform);
+
+  // let style2 = window.getComputedStyle(right[j]);
+  // let matrix2 = new DOMMatrixReadOnly(style2.transform);
+
+  // if (matrix.m42 != matrix2.m42) {
+  //   matrix.m42 < matrix2.m42
+  //     ? left.forEach((col) => {
+  //         col.style.transform = `translateY(${matrix2.m42}px)`;
+  //       })
+  //     : right.forEach((col) => {
+  //         col.style.transform = `translateY(${matrix2.m42}px)`;
+  //       });
+  // }
   while (i < left.length && j < right.length) {
+    left[i].style.backgroundColor = "red";
+    right[j].style.backgroundColor = "red";
+    while (isPaused) {
+      await sleep(100);
+    }
     let leftVal = parseInt(left[i].style.height);
     let rightVal = parseInt(right[j].style.height);
+    await sleep(delay);
 
     if (leftVal < rightVal) {
       result.push(left[i]);
+      left[i].style.backgroundColor = "green";
+      left[i].style.transform = `translateY(${(depth + 1) * 30}px)`;
+      await sleep(delay);
       i++;
     } else {
+      parent.insertBefore(right[j], left[i]);
+      right[j].style.transform = `translateY(${(depth + 1) * 30}px)`;
+      await sleep(delay);
+      right[j].style.backgroundColor = "green";
+
       result.push(right[j]);
       j++;
+
+      while (isPaused) {
+        await sleep(delay);
+      }
     }
+  }
+  while (isPaused) {
+    await sleep(100);
   }
 
   // add leftovers
   while (i < left.length) {
     result.push(left[i]);
+    left[i].style.backgroundColor = "green";
+    left[i].style.transform = `translateY(${(depth + 1) * 30}px)`;
+    await sleep(delay);
     i++;
   }
   while (j < right.length) {
     result.push(right[j]);
+    right[j].style.backgroundColor = "green";
+    right[j].style.transform = `translateY(${(depth + 1) * 30}px)`;
+    await sleep(delay);
     j++;
   }
+
+  result.forEach((col) => {
+    col.style.transform = `translateY(${(depth - 2) * 30}px)`;
+    col.style.backgroundColor = "orange";
+  });
+  await sleep(delay);
 
   return result;
 }
