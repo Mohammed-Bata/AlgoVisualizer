@@ -16,6 +16,11 @@ header {
   padding: 20px 0;
   font-weight: bold;
 }
+nav {
+  display: flex;
+  gap: 20px;
+  justify-content: space-around;
+}
 h1 {
   margin-left: 10px;
 }
@@ -79,4 +84,18 @@ footer {
   padding: 10px 0;
   text-align: center;
   font-weight: bold;
+}
+.algoList {
+  display: flex;
+  list-style-type: none;
+  gap: 10px;
+  align-items: center;
+  font-size: 24px;
+}
+li {
+  cursor: pointer;
+  color: #5b5858;
+}
+.active {
+  color: white;
 }

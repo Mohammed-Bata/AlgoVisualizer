@@ -6,6 +6,7 @@ const icon = startBtn.querySelector("i");
 const msInput = document.getElementById("ms");
 const sizeInput = document.getElementById("size");
 const createBtn = document.getElementById("create");
+const algolist = document.querySelector(".algoList");
 
 let isSorting = false;
 let isPaused = false;
@@ -22,6 +23,20 @@ let isPaused = false;
 //   col.textContent = nums[index];
 // });
 // });
+
+algolist.addEventListener("click", (e) => {
+  if (e.target && e.target.tagName === "LI") {
+    const algo = algolist.querySelector(".active");
+    const originalName = algo.dataset.name; // use data-name for reset
+
+    algo.textContent = `${originalName[0] + originalName[1] + originalName[2]}`;
+    algo.classList.remove("active");
+
+    e.target.classList.add("active");
+    const selected = e.target.dataset.name;
+    e.target.textContent = `${selected} SORT`;
+  }
+});
 
 createBtn.addEventListener("click", () => {
   if (!isSorting) {
@@ -94,23 +109,45 @@ function renderBars(arr) {
 
 startBtn.addEventListener("click", async () => {
   if (!isSorting) {
+    algo = document.querySelector(".active");
     isSorting = true;
     isPaused = false;
     icon.classList.remove("fa-play");
     icon.classList.remove("fa-rotate-right");
     icon.classList.add("fa-pause");
     renderBars(nums);
+    let cos = Array.from(cols);
+    switch (algo.dataset.name) {
+      case "BUBBLE":
+        await bubbleSort(nums);
+        break;
+      case "SELECTION":
+        await selectionSort(nums);
+        break;
+      case "INSERTION":
+        await insertionSort(nums);
+        break;
+      case "MERGE":
+        const values = await mergeSort(nums, cos, 0, cos.length - 1);
+        values.forEach((value) => {
+          value.style.backgroundColor = "blue";
+        });
+        break;
+      case "QUICK":
+        await quickSort(cos, 0, cos.length - 1);
+        break;
+    }
+
     //await n2Sort(nums);
     //await bubbleSort(nums);
     //await selectionSort(nums);
     //await insertionSort(nums);
-    let cos = Array.from(cols);
     // const values = await mergeSort(nums, cos, 0, cos.length - 1);
     // values.forEach((value) => {
     //   value.style.backgroundColor = "blue";
     // });
 
-    await quickSort(cos, 0, cos.length - 1);
+    //await quickSort(cos, 0, cos.length - 1);
     isSorting = false;
     icon.classList.remove("fa-pause");
     icon.classList.add("fa-rotate-right");
