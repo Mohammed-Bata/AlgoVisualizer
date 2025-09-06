@@ -29,8 +29,9 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
+  width: 100%;
 }
 input {
   margin: 10px;
@@ -63,18 +64,29 @@ input:focus {
 button {
   border: none;
   margin-bottom: 10px;
+  font-weight: bold;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .inputs {
-  position: absolute;
-  top: 10px;
   display: flex;
+  margin-bottom: 20px;
+}
+input {
+  width: 150px;
 }
 
 i {
   color: blue;
   font-size: 20px;
   cursor: pointer;
+  margin-left: 5px;
 }
 
 footer {
@@ -98,4 +110,14 @@ li {
 }
 .active {
   color: white;
+}
+.buttons {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 10px;
+  top: 80%;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 14px;
 }

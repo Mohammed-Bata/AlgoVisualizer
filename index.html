@@ -25,10 +25,17 @@
       </nav>
     </header>
     <main>
-      <!-- <div id="array">array before sorting:</div> -->
       <div class="inputs">
         <input type="number" id="ms" value="" placeholder="delay in ms" />
-        <input type="number" id="size" value="" placeholder="size" />
+        <input
+          min="5"
+          type="number"
+          id="size"
+          value=""
+          placeholder="arraysize(5-20)"
+          max="20"
+        />
+        <p id="sizeError" style="color: red; font-size: 14px; width: 100px"></p>
       </div>
 
       <div class="cols">
@@ -39,9 +46,9 @@
         <span class="col5 col"></span>
       </div>
 
-      <div>
-        <button id="start"><i class="fa-solid fa-play"></i></button>
-        <button id="create"><i class="fa-solid fa-plus"></i></button>
+      <div class="buttons">
+        <button id="start">Sort<i class="fa-solid fa-play"></i></button>
+        <button id="create">Create<i class="fa-solid fa-plus"></i></button>
       </div>
     </main>
     <footer>made by <strong>Mohammed Bata</strong></footer>

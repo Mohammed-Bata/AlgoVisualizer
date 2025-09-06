@@ -1,5 +1,3 @@
-//const arr = document.getElementById("array");
-const sortedarr = document.getElementById("sortedarray");
 let cols = document.querySelectorAll(".col");
 const startBtn = document.getElementById("start");
 const icon = startBtn.querySelector("i");
@@ -7,22 +5,11 @@ const msInput = document.getElementById("ms");
 const sizeInput = document.getElementById("size");
 const createBtn = document.getElementById("create");
 const algolist = document.querySelector(".algoList");
+const parent = document.querySelector(".cols");
+const sizeError = document.getElementById("sizeError");
 
 let isSorting = false;
 let isPaused = false;
-
-// window.addEventListener("DOMContentLoaded", () => {
-//   //generate random array on load
-// let nums = [21, 10, 9, 2, 3];
-// for (let i = 0; i < nums.length; i++) {
-//   const col = document.querySelector(`.col${i + 1}`);
-//   col.style.height = `${nums[i] * 20}px`;
-// }
-
-// cols.forEach((col, index) => {
-//   col.textContent = nums[index];
-// });
-// });
 
 algolist.addEventListener("click", (e) => {
   if (e.target && e.target.tagName === "LI") {
@@ -43,49 +30,33 @@ createBtn.addEventListener("click", () => {
     icon.classList.remove("fa-rotate-right");
     icon.classList.add("fa-play");
     nums = generateRandomArray();
-    console.log(nums);
   }
 });
 
 let nums = generateRandomArray();
-console.log(nums);
-
-// for (let i = 0; i < nums.length; i++) {
-//   const col = document.querySelector(`.col${i + 1}`);
-//   col.style.height = `${(nums[i] / 50) * 220}px`;
-// }
-
-// cols.forEach((col, index) => {
-//   col.textContent = nums[index];
-// });
 
 //generate random array
 function generateRandomArray() {
   const arr = [];
   let size = sizeInput.value ? parseInt(sizeInput.value) : 5;
+  if (size < 5) {
+    sizeError.textContent = "Size should be at least 5";
+    size = 5;
+  }
+  if (size > 20) {
+    sizeError.textContent = "Size should not exceed 20";
+    size = Math.min(size, 20);
+  }
+  sizeInput.value = size;
+
+  setTimeout(() => {
+    sizeError.textContent = "";
+  }, 3000);
+
   for (let i = 0; i < size; i++) {
     arr.push(Math.floor(Math.random() * 49) + 1);
   }
   renderBars(arr);
-  // const base = document.querySelector(".cols");
-  // base.innerHTML = "";
-  // arr.forEach((height, index) => {
-  //   const bar = document.createElement("span");
-  //   bar.classList.add("col");
-  //   bar.classList.add(`col${index + 1}`);
-  //   bar.style.height = `${(height / 50) * 220}px`;
-  //   base.appendChild(bar);
-  // });
-
-  // cols = base.querySelectorAll(".col");
-  // cols.forEach((col, index) => {
-  //   col.textContent = arr[index];
-  // });
-
-  // for (let i = 0; i < arr.length; i++) {
-  //   const col = document.querySelector(`.col${i + 1}`);
-  //   col.style.height = `${arr[i] * 20}px`;
-  // }
 
   return arr;
 }
@@ -119,38 +90,28 @@ startBtn.addEventListener("click", async () => {
     let cos = Array.from(cols);
     switch (algo.dataset.name) {
       case "BUBBLE":
-        //await bubbleSort(nums);
-        await bubbleSort2(cos);
+        await bubbleSort(parent, cos);
         break;
       case "SELECTION":
-        //await selectionSort(nums);
-        await selectionSort2(nums, cos);
+        await selectionSort(parent, cos);
         break;
       case "INSERTION":
-        await insertionSort2(cos);
-        //await insertionSort(nums);
+        await insertionSort(parent, cos);
         break;
       case "MERGE":
-        const values = await mergeSort(nums, cos, 0, cos.length - 1);
-        values.forEach((value) => {
-          value.style.backgroundColor = "blue";
+        const result = await mergeSort(parent, cos, 0, cos.length - 1);
+        result.forEach((col) => {
+          col.style.backgroundColor = "blue";
         });
         break;
       case "QUICK":
-        await quickSort(cos, 0, cos.length - 1);
+        await quickSort(parent, cos, 0, cos.length - 1);
+        cols.forEach((col) => {
+          col.style.backgroundColor = "blue";
+        });
         break;
     }
 
-    //await n2Sort(nums);
-    //await bubbleSort(nums);
-    //await selectionSort(nums);
-    //await insertionSort(nums);
-    // const values = await mergeSort(nums, cos, 0, cos.length - 1);
-    // values.forEach((value) => {
-    //   value.style.backgroundColor = "blue";
-    // });
-
-    //await quickSort(cos, 0, cos.length - 1);
     isSorting = false;
     icon.classList.remove("fa-play");
     icon.classList.add("fa-rotate-right");
@@ -186,12 +147,14 @@ async function swapBars(parent, colA, colB, cols, depth = 1) {
   [cols[indexA], cols[indexB]] = [cols[indexB], cols[indexA]];
 }
 
-async function part(cols, start, end) {
+async function part(parent, cols, start, end) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
-  let parent = document.querySelector(".cols");
   let pivot = cols[start];
   cols[start].style.backgroundColor = "orange";
   await sleep(delay);
+  while (isPaused) {
+    await sleep(100);
+  }
   let count = 0;
   for (let i = start + 1; i <= end; i++) {
     cols[i].style.backgroundColor = "yellow";
@@ -200,12 +163,19 @@ async function part(cols, start, end) {
     }
     await sleep(delay);
     cols[i].style.backgroundColor = "blue";
+    while (isPaused) {
+      await sleep(100);
+    }
   }
   await sleep(delay);
 
   let pivotIdx = start + count;
   await swapBars(parent, cols[pivotIdx], cols[start], cols);
   pivot.style.backgroundColor = "orange";
+  await sleep(delay);
+  while (isPaused) {
+    await sleep(100);
+  }
 
   let i = start;
   let j = end;
@@ -215,47 +185,57 @@ async function part(cols, start, end) {
     cols[j].style.backgroundColor = "red";
     await sleep(delay);
     while (
-      parseInt(cols[i].style.height) <= parseInt(pivot.style.height) &&
+      parseInt(cols[i].style.height) < parseInt(pivot.style.height) &&
       cols[i] != pivot
     ) {
-      // cols[i].style.backgroundColor = "red";
-      // await sleep(delay);
+      cols[i].style.backgroundColor = "red";
       cols[i].style.backgroundColor = "blue";
       i++;
+    }
+    cols[i].style.backgroundColor = "red";
+    while (isPaused) {
+      await sleep(100);
     }
     while (
       parseInt(cols[j].style.height) > parseInt(pivot.style.height) &&
       cols[j] != pivot
     ) {
-      // cols[j].style.backgroundColor = "red";
-      // await sleep(delay);
+      cols[j].style.backgroundColor = "red";
       cols[j].style.backgroundColor = "blue";
       j--;
     }
+    cols[j].style.backgroundColor = "red";
+
+    while (isPaused) {
+      await sleep(100);
+    }
+    await sleep(delay);
     if (i < pivotIdx && j > pivotIdx) {
       await swapBars(parent, cols[i], cols[j], cols);
+    }
+    i++;
+    j--;
+    while (isPaused) {
+      await sleep(100);
     }
   }
   cols[pivotIdx].style.backgroundColor = "blue";
   return pivotIdx;
 }
-async function quickSort(cols, start, end) {
+async function quickSort(parent, cols, start, end) {
   if (start >= end) {
     return;
   }
-  let p = await part(cols, start, end);
+  let p = await part(parent, cols, start, end);
 
-  await quickSort(cols, start, p - 1);
-  await quickSort(cols, p + 1, end);
+  await quickSort(parent, cols, start, p - 1);
+  await quickSort(parent, cols, p + 1, end);
 }
 
-async function mergeSort(nums, cos, start, end, depth = 0) {
-  let parent = document.querySelector(".cols");
+async function mergeSort(parent, cos, start, end, depth = 0) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
 
   if (start >= end) {
-    // cos[start].style.transform = `translateY(${depth * 30}px)`;
-    // await sleep(delay);
     return [cos[start]];
   }
 
@@ -283,24 +263,10 @@ async function merge(parent, left, right, depth) {
   let i = 0,
     j = 0;
 
-  // let style1 = window.getComputedStyle(left[i]);
-  // let matrix = new DOMMatrixReadOnly(style1.transform);
-
-  // let style2 = window.getComputedStyle(right[j]);
-  // let matrix2 = new DOMMatrixReadOnly(style2.transform);
-
-  // if (matrix.m42 != matrix2.m42) {
-  //   matrix.m42 < matrix2.m42
-  //     ? left.forEach((col) => {
-  //         col.style.transform = `translateY(${matrix2.m42}px)`;
-  //       })
-  //     : right.forEach((col) => {
-  //         col.style.transform = `translateY(${matrix2.m42}px)`;
-  //       });
-  // }
   while (i < left.length && j < right.length) {
     left[i].style.backgroundColor = "red";
     right[j].style.backgroundColor = "red";
+    await sleep(delay);
     while (isPaused) {
       await sleep(100);
     }
@@ -352,12 +318,11 @@ async function merge(parent, left, right, depth) {
     col.style.backgroundColor = "orange";
   });
   await sleep(delay);
-
   return result;
 }
-async function insertionSort2(cols) {
+
+async function insertionSort(parent, cols) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
-  let parent = document.querySelector(".cols");
   for (let i = 1; i < cols.length; ++i) {
     let key = cols[i];
     let j = i - 1;
@@ -371,7 +336,7 @@ async function insertionSort2(cols) {
       key.style.transform = "translateY(0px)";
       await sleep(delay);
     }
-    //await sleep(delay);
+
     while (
       j >= 0 &&
       parseInt(cols[j].style.height) > parseInt(key.style.height)
@@ -382,255 +347,71 @@ async function insertionSort2(cols) {
       await sleep(delay);
       parent.insertBefore(cols[j], key.nextSibling);
       cols = parent.children;
-      // cols[j].style.transform = "translateY(-30px)";
-      // cols[j].style.backgroundColor = "red";
+
       await sleep(delay);
       while (isPaused) {
         await sleep(100);
       }
-      // Shift value to the right
-      // let temp = nums[j + 1];
-      // nums[j + 1] = nums[j];
-      // cols[j + 1].style.height = `${(nums[j] / 50) * 220}px`;
-      // cols[j + 1].textContent = nums[j];
 
-      // Reset bar after comparison
-      // nums[j] = temp;
-      // cols[j].style.transform = "translateY(0)";
-      // cols[j].style.backgroundColor = "orange";
-      // cols[j].textContent = temp;
-      // cols[j].style.height = `${(temp / 50) * 220}px`;
-      //cols[i].style.transform = "translateY(0)";
-      //cols[i].style.backgroundColor = "blue";
-
-      //await sleep(delay);
-      while (isPaused) {
-        await sleep(100);
-      }
       j--;
     }
     key.style.transform = "translateY(0px)";
     key.style.backgroundColor = "orange";
-    //old function
-    //cols[i].style.transform = "translateY(-30px)";
-    // cols[i].style.backgroundColor = "orange";
-    // if (nums[j] <= key) {
-    //   cols[j].style.transform = "translateY(-30px)";
-    //   cols[j].style.backgroundColor = "red";
-    //   await sleep(delay);
-    //   cols[j].style.backgroundColor = "orange";
-    //   cols[j].style.transform = "translateY(0px)";
-    //   await sleep(delay);
-    // }
-    // await sleep(delay);
-    // while (j >= 0 && nums[j] > key) {
-    //   cols[j].style.transform = "translateY(-30px)";
-    //   cols[j].style.backgroundColor = "red";
-    //   await sleep(delay);
-    //   while (isPaused) {
-    //     await sleep(100);
-    //   }
-    //   // Shift value to the right
-    //   let temp = nums[j + 1];
-    //   nums[j + 1] = nums[j];
-    //   cols[j + 1].style.height = `${(nums[j] / 50) * 220}px`;
-    //   cols[j + 1].textContent = nums[j];
-
-    //   // Reset bar after comparison
-    //   nums[j] = temp;
-    //   cols[j].style.transform = "translateY(0)";
-    //   cols[j].style.backgroundColor = "orange";
-    //   cols[j].textContent = temp;
-    //   cols[j].style.height = `${(temp / 50) * 220}px`;
-    //   //cols[i].style.transform = "translateY(0)";
-    //   //cols[i].style.backgroundColor = "blue";
-
-    //   await sleep(delay);
-    //   while (isPaused) {
-    //     await sleep(100);
-    //   }
-    //   j--;
-    // }
-
-    // nums[j + 1] = key;
-    // cols[j + 1].style.height = `${(key / 50) * 220}px`;
-    // cols[j + 1].textContent = key;
-    // cols[j + 1].style.backgroundColor = "orange";
-
-    //Reset current bar
-    //cols[i].style.transform = "translateY(0)";
-    //cols[i].style.backgroundColor = "orange";
-
-    //await sleep(delay);
   }
+  await sleep(delay);
+  cols = Array.from(parent.children);
+  cols.forEach((col) => {
+    col.style.backgroundColor = "blue";
+  });
 }
 
-async function insertionSort(nums) {
+async function selectionSort(parent, cols) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
-  for (let i = 1; i < nums.length; ++i) {
-    let key = nums[i];
-    let j = i - 1;
-    //cols[i].style.transform = "translateY(-30px)";
-    cols[i].style.backgroundColor = "orange";
-    if (nums[j] <= key) {
-      cols[j].style.transform = "translateY(-30px)";
-      cols[j].style.backgroundColor = "red";
-      await sleep(delay);
-      cols[j].style.backgroundColor = "orange";
-      cols[j].style.transform = "translateY(0px)";
-      await sleep(delay);
-    }
-    await sleep(delay);
-    while (j >= 0 && nums[j] > key) {
-      cols[j].style.transform = "translateY(-30px)";
-      cols[j].style.backgroundColor = "red";
-      await sleep(delay);
-      while (isPaused) {
-        await sleep(100);
-      }
-      // Shift value to the right
-      let temp = nums[j + 1];
-      nums[j + 1] = nums[j];
-      cols[j + 1].style.height = `${(nums[j] / 50) * 220}px`;
-      cols[j + 1].textContent = nums[j];
 
-      // Reset bar after comparison
-      nums[j] = temp;
-      cols[j].style.transform = "translateY(0)";
-      cols[j].style.backgroundColor = "orange";
-      cols[j].textContent = temp;
-      cols[j].style.height = `${(temp / 50) * 220}px`;
-      //cols[i].style.transform = "translateY(0)";
-      //cols[i].style.backgroundColor = "blue";
-
-      await sleep(delay);
-      while (isPaused) {
-        await sleep(100);
-      }
-      j--;
-    }
-
-    nums[j + 1] = key;
-    cols[j + 1].style.height = `${(key / 50) * 220}px`;
-    cols[j + 1].textContent = key;
-    cols[j + 1].style.backgroundColor = "orange";
-
-    //Reset current bar
-    //cols[i].style.transform = "translateY(0)";
-    cols[i].style.backgroundColor = "orange";
-
-    await sleep(delay);
-  }
-  isSorting = false;
-  icon.classList.remove("fa-pause");
-  icon.classList.add("fa-play");
-}
-async function selectionSort2(nums, cols) {
-  let delay = msInput.value ? parseInt(msInput.value) : 500;
-  let parent = document.querySelector(".cols");
-
-  for (let i = 0; i < nums.length - 1; ++i) {
+  for (let i = 0; i < cols.length - 1; ++i) {
     let minidx = i;
-    for (let j = i + 1; j < nums.length; j++) {
+    for (let j = i + 1; j < cols.length; j++) {
       if (!isSorting) {
         return;
       }
       while (isPaused) {
         await sleep(100);
       }
-      // cols[minidx].style.transform = "translateY(-30px)";
+
       cols[minidx].style.backgroundColor = "red";
-      // await sleep(delay);
-      // cols[j].style.transform = "translateY(-30px)";
+
       await sleep(delay);
       cols[j].style.backgroundColor = "orange";
       await sleep(delay);
-      // while (isPaused) {
-      //   await sleep(100);
-      // }
+      while (isPaused) {
+        await sleep(100);
+      }
       if (
         parseInt(cols[j].style.height) < parseInt(cols[minidx].style.height)
       ) {
-        cols[minidx].style.transform = "translateY(0px)";
         cols[minidx].style.backgroundColor = "blue";
         minidx = j;
       } else {
-        cols[j].style.transform = "translateY(0px)";
         cols[j].style.backgroundColor = "blue";
       }
     }
-    // let temp = nums[i];
-    // nums[i] = nums[minidx];
-    // nums[minidx] = temp;
-    // cols[i].style.height = `${(nums[i] / 50) * 220}px`;
-    // cols[minidx].style.height = `${(nums[minidx] / 50) * 220}px`;
-    // cols[i].textContent = nums[i];
-    // cols[minidx].textContent = nums[minidx];
-    // await sleep(delay);
+
     await swapBars(parent, cols[minidx], cols[i], cols, 0);
     while (isPaused) {
       await sleep(100);
     }
-    // cols[j].style.transform = "translateY(0px)";
-    // cols[j].style.backgroundColor = "blue";
-    cols[minidx].style.transform = "translateY(0px)";
+    cols[i].style.backgroundColor = "orange";
+
     cols[minidx].style.backgroundColor = "blue";
     await sleep(delay);
   }
+  cols.forEach((col) => {
+    col.style.backgroundColor = "blue";
+  });
 }
-async function selectionSort(nums) {
+
+async function bubbleSort(parent, cols) {
   let delay = msInput.value ? parseInt(msInput.value) : 500;
-  for (let i = 0; i < nums.length - 1; ++i) {
-    let minidx = i;
-    for (let j = i + 1; j < nums.length; j++) {
-      if (!isSorting) {
-        return;
-      }
-      while (isPaused) {
-        await sleep(100);
-      }
-      cols[minidx].style.transform = "translateY(-30px)";
-      cols[minidx].style.backgroundColor = "red";
-      await sleep(delay);
-      cols[j].style.transform = "translateY(-30px)";
-      cols[j].style.backgroundColor = "red";
-      await sleep(delay);
-      while (isPaused) {
-        await sleep(100);
-      }
-      if (nums[j] < nums[minidx]) {
-        cols[minidx].style.transform = "translateY(0px)";
-        cols[minidx].style.backgroundColor = "blue";
-        minidx = j;
-      } else {
-        cols[j].style.transform = "translateY(0px)";
-        cols[j].style.backgroundColor = "blue";
-      }
-    }
-    let temp = nums[i];
-    nums[i] = nums[minidx];
-    nums[minidx] = temp;
-    cols[i].style.height = `${(nums[i] / 50) * 220}px`;
-    cols[minidx].style.height = `${(nums[minidx] / 50) * 220}px`;
-    cols[i].textContent = nums[i];
-    cols[minidx].textContent = nums[minidx];
-    await sleep(delay);
-    while (isPaused) {
-      await sleep(100);
-    }
-    // cols[j].style.transform = "translateY(0px)";
-    // cols[j].style.backgroundColor = "blue";
-    cols[minidx].style.transform = "translateY(0px)";
-    cols[minidx].style.backgroundColor = "blue";
-    await sleep(delay);
-  }
-  // isSorting = false;
-  // icon.classList.remove("fa-pause");
-  // icon.classList.add("fa-play");
-}
-async function bubbleSort2(cols) {
-  let delay = msInput.value ? parseInt(msInput.value) : 500;
-  let parent = document.querySelector(".cols");
 
   for (let i = 0; i < cols.length - 1; ++i) {
     let swapped = false;
@@ -641,23 +422,13 @@ async function bubbleSort2(cols) {
       while (isPaused) {
         await sleep(100);
       }
-      // cols[j].style.transform = "translateY(-30px)";
       cols[j].style.backgroundColor = "red";
-      // await sleep(delay);
-      // cols[j + 1].style.transform = "translateY(-30px)";
       cols[j + 1].style.backgroundColor = "red";
       await sleep(delay);
       while (isPaused) {
         await sleep(100);
       }
       if (parseInt(cols[j].style.height) > parseInt(cols[j + 1].style.height)) {
-        // let temp = nums[j];
-        // nums[j] = nums[j + 1];
-        // nums[j + 1] = temp;
-        // cols[j].style.height = `${(nums[j] / 50) * 220}px`;
-        // cols[j + 1].style.height = `${(nums[j + 1] / 50) * 220}px`;
-        // cols[j].textContent = nums[j];
-        // cols[j + 1].textContent = nums[j + 1];
         await swapBars(parent, cols[j + 1], cols[j], cols, 0);
         swapped = true;
         await sleep(delay);
@@ -665,109 +436,21 @@ async function bubbleSort2(cols) {
       while (isPaused) {
         await sleep(100);
       }
-      cols[j].style.transform = "translateY(0px)";
-      cols[j + 1].style.transform = "translateY(0px)";
-      cols[j].style.backgroundColor = "blue";
-      cols[j + 1].style.backgroundColor = "blue";
-      await sleep(delay);
-    }
-    if (!swapped) {
-      break;
-    }
-  }
-}
-async function bubbleSort(nums) {
-  let delay = msInput.value ? parseInt(msInput.value) : 500;
-  for (let i = 0; i < nums.length - 1; ++i) {
-    let swapped = false;
-    for (let j = 0; j < nums.length - i - 1; ++j) {
-      if (!isSorting) {
-        return;
-      }
-      while (isPaused) {
-        await sleep(100);
-      }
-      cols[j].style.transform = "translateY(-30px)";
-      cols[j].style.backgroundColor = "red";
-      await sleep(delay);
-      cols[j + 1].style.transform = "translateY(-30px)";
-      cols[j + 1].style.backgroundColor = "red";
-      await sleep(delay);
-      while (isPaused) {
-        await sleep(100);
-      }
-      if (nums[j] > nums[j + 1]) {
-        let temp = nums[j];
-        nums[j] = nums[j + 1];
-        nums[j + 1] = temp;
-        cols[j].style.height = `${(nums[j] / 50) * 220}px`;
-        cols[j + 1].style.height = `${(nums[j + 1] / 50) * 220}px`;
-        cols[j].textContent = nums[j];
-        cols[j + 1].textContent = nums[j + 1];
-        swapped = true;
-        await sleep(delay);
-      }
-      while (isPaused) {
-        await sleep(100);
-      }
-      cols[j].style.transform = "translateY(0px)";
-      cols[j + 1].style.transform = "translateY(0px)";
-      cols[j].style.backgroundColor = "blue";
-      cols[j + 1].style.backgroundColor = "blue";
-      await sleep(delay);
-    }
-    if (!swapped) {
-      break;
-    }
-  }
-  // isSorting = false;
-  // icon.classList.remove("fa-pause");
-  // icon.classList.add("fa-play");
-}
 
-// async function n2Sort(nums) {
-//   let delay = msInput.value ? parseInt(msInput.value) : 500;
-//   for (let i = 0; i < nums.length - 1; ++i) {
-//     for (let j = i + 1; j < nums.length; ++j) {
-//       if (!isSorting) {
-//         return;
-//       }
-//       while (isPaused) {
-//         await sleep(100);
-//       }
-//       cols[i].style.transform = "translateY(-30px)";
-//       cols[i].style.backgroundColor = "red";
-//       await sleep(delay);
-//       cols[j].style.transform = "translateY(-30px)";
-//       cols[j].style.backgroundColor = "red";
-//       await sleep(delay);
-//       while (isPaused) {
-//         await sleep(100);
-//       }
-//       if (nums[i] > nums[j]) {
-//         let temp = nums[i];
-//         nums[i] = nums[j];
-//         nums[j] = temp;
-//         cols[i].style.height = `${(nums[i] / 50) * 220}px`;
-//         cols[j].style.height = `${(nums[j] / 50) * 220}px`;
-//         cols[i].textContent = nums[i];
-//         cols[j].textContent = nums[j];
-//         await sleep(delay);
-//       }
-//       while (isPaused) {
-//         await sleep(100);
-//       }
-//       cols[i].style.transform = "translateY(0px)";
-//       cols[j].style.transform = "translateY(0px)";
-//       cols[i].style.backgroundColor = "blue";
-//       cols[j].style.backgroundColor = "blue";
-//       await sleep(delay);
-//     }
-//   }
-//   isSorting = false;
-//   icon.classList.remove("fa-pause");
-//   icon.classList.add("fa-play");
-// }
+      cols[j].style.backgroundColor = "blue";
+      cols[j + 1].style.backgroundColor = "blue";
+    }
+    cols[cols.length - i - 1].style.backgroundColor = "orange";
+    await sleep(delay);
+    if (!swapped) {
+      break;
+    }
+  }
+  await sleep(delay);
+  cols.forEach((col) => {
+    col.style.backgroundColor = "blue";
+  });
+}
 
 function sleep(ms = 500) {
   return new Promise((resolve) => setTimeout(resolve, ms));
