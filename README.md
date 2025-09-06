@@ -11,11 +11,12 @@ Adjustable speed to control the animation.
 Step-by-step mode for a detailed understanding of the sorting process.
 
 # Algorithms:
-1.Bubble Sort
-2.Selection Sort
-3.Insertion Sort
-4.Merge Sort
-5.Quick Sort
+
+1. Bubble Sort
+2. Selection Sort
+3. Insertion Sort
+4. Merge Sort
+5. Quick Sort
 
 # License
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). Please see the LICENSE file for more details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). Please see the https://github.com/hasssanezzz/sort-visualizer/blob/main/LICENSE file for more details.
