@@ -25,6 +25,11 @@
       </nav>
     </header>
     <main>
+      <div id="rotateOverlay" class="hidden">
+        <div class="overlay-content">
+          🔄 Please rotate your device to landscape mode
+        </div>
+      </div>
       <div class="inputs">
         <input type="number" id="ms" value="" placeholder="delay in ms" />
         <input
@@ -35,7 +40,18 @@
           placeholder="arraysize(5-20)"
           max="20"
         />
-        <p id="sizeError" style="color: red; font-size: 14px; width: 100px"></p>
+        <span
+          id="sizeError"
+          style="
+            color: red;
+            font-size: 14px;
+            width: fit-content;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+          "
+        ></span>
       </div>
 
       <div class="cols">

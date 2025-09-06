@@ -11,6 +11,26 @@ const sizeError = document.getElementById("sizeError");
 let isSorting = false;
 let isPaused = false;
 
+function isMobile() {
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function checkOrientation() {
+  const overlay = document.getElementById("rotateOverlay");
+
+  if (isMobile() && window.innerHeight > window.innerWidth) {
+    // portrait mode → show overlay
+    overlay.classList.remove("hidden");
+  } else {
+    overlay.classList.add("hidden");
+  }
+}
+
+// run on load + when orientation changes
+window.addEventListener("load", checkOrientation);
+window.addEventListener("resize", checkOrientation);
+window.addEventListener("orientationchange", checkOrientation);
+
 algolist.addEventListener("click", (e) => {
   if (e.target && e.target.tagName === "LI") {
     const algo = algolist.querySelector(".active");
@@ -87,25 +107,25 @@ startBtn.addEventListener("click", async () => {
     icon.classList.remove("fa-rotate-right");
     icon.classList.add("fa-pause");
     renderBars(nums);
-    let cos = Array.from(cols);
+    let colsArr = Array.from(cols);
     switch (algo.dataset.name) {
       case "BUBBLE":
-        await bubbleSort(parent, cos);
+        await bubbleSort(parent, colsArr);
         break;
       case "SELECTION":
-        await selectionSort(parent, cos);
+        await selectionSort(parent, colsArr);
         break;
       case "INSERTION":
-        await insertionSort(parent, cos);
+        await insertionSort(parent, colsArr);
         break;
       case "MERGE":
-        const result = await mergeSort(parent, cos, 0, cos.length - 1);
+        const result = await mergeSort(parent, colsArr, 0, colsArr.length - 1);
         result.forEach((col) => {
           col.style.backgroundColor = "blue";
         });
         break;
       case "QUICK":
-        await quickSort(parent, cos, 0, cos.length - 1);
+        await quickSort(parent, colsArr, 0, colsArr.length - 1);
         cols.forEach((col) => {
           col.style.backgroundColor = "blue";
         });
