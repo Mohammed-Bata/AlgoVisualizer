@@ -18,4 +18,4 @@ Step-by-step mode for a detailed understanding of the sorting process.
 5.Quick Sort
 
 # License
-This project is licensed under the MIT License. Please see the LICENSE file for more details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT). Please see the LICENSE file for more details.
