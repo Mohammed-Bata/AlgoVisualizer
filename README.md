@@ -10,6 +10,9 @@ Randomize input array with custom size.
 Adjustable speed to control the animation.
 Step-by-step mode for a detailed understanding of the sorting process.
 
+# Live Demo
+https://algo-visualizer-lyart.vercel.app/
+
 # Algorithms:
 
 1. Bubble Sort
