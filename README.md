@@ -1,4 +1,4 @@
-# Sort Visualizer
+# Sortify
 This project is a web-based sorting visualization tool that allows users to visualize various sorting algorithms. It provides an interactive interface to understand how different sorting algorithms work and compare their performance.
 
 # Introduction
