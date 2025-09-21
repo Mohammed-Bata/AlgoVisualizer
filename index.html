@@ -12,61 +12,159 @@
     <script defer src="script.js"></script>
   </head>
   <body>
-    <header>
-      <nav>
-        <h1>Sortify</h1>
-        <ul class="algoList">
-          <li data-name="BUBBLE" class="active">BUBBLE SORT</li>
-          <li data-name="SELECTION">SEL</li>
-          <li data-name="INSERTION">INS</li>
-          <li data-name="MERGE">MER</li>
-          <li data-name="QUICK">QUI</li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-      <div id="rotateOverlay" class="hidden">
-        <div class="overlay-content">
-          🔄 Please rotate your device to landscape mode
+    <div class="app">
+      <header class="header">
+        <div class="container">
+          <div class="header-content">
+            <div class="logo">
+              <svg
+                class="sparkles-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0L9.937 15.5Z"
+                />
+              </svg>
+              <h1>Sortify</h1>
+            </div>
+            <div class="algorithm-display">
+              <span id="currentAlgorithm">Bubble Sort</span>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="inputs">
-        <input type="number" id="ms" value="" placeholder="delay in ms" />
-        <input
-          min="5"
-          type="number"
-          id="size"
-          value=""
-          placeholder="arraysize(5-20)"
-          max="20"
-        />
-        <span
-          id="sizeError"
-          style="
-            color: red;
-            font-size: 14px;
-            width: fit-content;
-            position: absolute;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-          "
-        ></span>
-      </div>
+      </header>
 
-      <div class="cols">
-        <span class="col1 col"></span>
-        <span class="col2 col"></span>
-        <span class="col3 col"></span>
-        <span class="col4 col"></span>
-        <span class="col5 col"></span>
-      </div>
+      <main class="main">
+        <div class="container">
+          <!-- Controls -->
+          <div class="controls-card">
+            <div class="controls-grid">
+              <div class="control-group">
+                <label for="algorithmSelect">Algorithm</label>
+                <div class="select-wrapper">
+                  <select id="algorithmSelect" class="select">
+                    <option value="bubble">Bubble Sort</option>
+                    <option value="selection">Selection Sort</option>
+                    <option value="insertion">Insertion Sort</option>
+                    <option value="merge">Merge Sort</option>
+                    <option value="quick">Quick Sort</option>
+                  </select>
+                </div>
+              </div>
 
-      <div class="buttons">
-        <button id="start">Sort<i class="fa-solid fa-play"></i></button>
-        <button id="create">Create<i class="fa-solid fa-plus"></i></button>
-      </div>
-    </main>
-    <footer>made by <strong>Mohammed Bata</strong></footer>
+              <div class="control-group">
+                <span id="sizeError"></span>
+                <label for="arraySize">Array Size</label>
+                <input
+                  type="number"
+                  id="arraySize"
+                  class="input"
+                  value="7"
+                  min="5"
+                  max="30"
+                />
+              </div>
+
+              <div class="control-group">
+                <label for="speed">Speed (ms)</label>
+                <input
+                  type="number"
+                  id="speed"
+                  class="input"
+                  value="500"
+                  min="300"
+                  max="5000"
+                />
+              </div>
+
+              <div class="button-group">
+                <button id="playPauseBtn" class="btn btn-primary">
+                  <svg
+                    class="play-icon"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <polygon points="5,3 19,12 5,21" />
+                  </svg>
+                  <svg
+                    class="pause-icon hidden"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                  </svg>
+                </button>
+                <button id="resetBtn" class="btn btn-secondary">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+                    />
+                    <path d="M21 3v5h-5" />
+                    <path
+                      d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+                    />
+                    <path d="M3 21v-5h5" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Visualization -->
+          <div class="visualization-card">
+            <div class="visualization-container">
+              <div id="barsContainer" class="bars-container">
+                <span class="bar1 bar"></span>
+                <span class="bar2 bar"></span>
+                <span class="bar3 bar"></span>
+                <span class="bar4 bar"></span>
+                <span class="bar5 bar"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color unsorted"></div>
+              <span>Unsorted</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color comparing"></div>
+              <span>Comparing</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color swapping"></div>
+              <span>Swapping</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color shifting"></div>
+              <span>Shifting</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color subarray"></div>
+              <span>Subarray</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color sorted"></div>
+              <span>Sorted</span>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- Footer -->
+      <footer class="footer">
+        <div class="container">
+          <p>Made with ❤️ by Mohammed Bata</p>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>
